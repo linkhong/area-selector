@@ -20,8 +20,6 @@
 <input class="area-input" type="text" id="area2">
 <p>input, 异步获取地址数据</p>
 <input class="area-input" type="text" id="area3">
-<!-- 	// <script src="./es5-shim.js"></script>
-	// <script src="./es5-sham.js"></script> -->
 <script src="./areaSelector.js"></script>
 <script>
   var instance1 = new AreaSelector({
@@ -32,14 +30,15 @@
   });
   var instance2 = new AreaSelector({
     target: "#area2",
-    area: {province: 130000, city: 130800, district: 130825}
+    area: {province: 130000, city: 130800, district: 130825},
+    sep:"#"
   });
   var instance3 = new AreaSelector({
-    target:"#area3"
+    target: "#area3"
   });
-  setTimeout(function() {
+  setTimeout(function () {
     instance3.setArea({province: 130000, city: 130800, district: 130824})
-  },2000);
+  }, 2000);
 </script>
 </body>
 </html>

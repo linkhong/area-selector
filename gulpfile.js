@@ -6,7 +6,7 @@ var watch = require('gulp-watch');
 gulp.task("dist", ['copy'], () => {
   return gulp.src('./src/areaselector.js')
     .pipe(babel())
-    //.pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest("dist"));
 });
 gulp.task("copy", () => {

@@ -67,3 +67,22 @@
   color: #fff;
 }
 
+/*custom css*/
+.area-selector-wrap {}
+
+/*显示和消失样式*/
+.area-selector-wrap.show {}
+.area-selector-wrap.hide {}
+
+/*标签栏样式*/
+.area-selector-tab {}
+.area-selector-tab.active{}
+
+/*省市区面板样式*/
+.area-selector-panel{}
+.area-selector-panel.active {}
+
+/*单个省市区node样式*/
+.area-selector-panel dd {}
+.area-selector-panel dd:hover {}
+.area-selector-panel dd.select {}

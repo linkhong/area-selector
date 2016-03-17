@@ -4833,12 +4833,17 @@
     AREASHOWCLASS = "area-selector-wrap show",
     AREAHIDECLASS = "area-selector-wrap hide";
 
-  function AreaSelector(opts) {
-    if (!opts.target) throw new Error("areaSelector need a _target node");
+  function AreaSelector(opts={
+    sep:"/",
+    callback:()=>false,
+    target:null,
+    area:null
+  }) {
+    if (!opts.target) throw new Error("areaSelector need a target node");
 
     this._options = {
-      separator: opts.separator || "/",
-      callback: typeof opts.callback === "function" ? opts.callback : () => false
+      separator: opts.sep || "/",
+      callback: opts.callback || (()=>false)
     };
     // 触发节点
     this._target = document.querySelector(opts.target);
@@ -4974,23 +4979,19 @@
     //只在手动设置area code时调用
     var _area = this._area;
     if (!_area[PROVINCE]) return;
-    //console.log(_area);
     if (_area[PROVINCE]) {
       getNode(this._generateNodeId(PROVINCE, _area[PROVINCE])).className = "select";
       this._renderCities();
     }
-    //console.log(_area);
 
     if (_area[PROVINCE] && _area[CITY]) {
       getNode(this._generateNodeId(CITY, _area[CITY])).className = "select";
       this._renderDistricts();
     }
-    //console.log(_area);
 
     if (_area[PROVINCE] && _area[CITY] && _area[DISTRICT]) {
       getNode(this._generateNodeId(DISTRICT, _area[DISTRICT])).className = "select";
     }
-    //console.log(_area);
     this._type = PROVINCE;
     this._changeTab();
     // this._updateTargetView();

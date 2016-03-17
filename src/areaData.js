@@ -4764,4 +4764,4 @@ var areaData = {
   }
 };
 
-export default areaData;
+module.exports =  areaData;

@@ -4,7 +4,7 @@ var uglify = require('gulp-uglify');
 var watch = require('gulp-watch');
 
 gulp.task("dist", ['copy'], () => {
-  return gulp.src('./src/*.js')
+  return gulp.src('./src/areaselector.js')
     .pipe(babel())
     //.pipe(uglify())
     .pipe(gulp.dest("dist"));
@@ -15,8 +15,8 @@ gulp.task("copy", () => {
 });
 
 gulp.task("dev", ['css'], () => {
-  return gulp.src(["./src/index.js"])
-    .pipe(watch(["./src/index.js"]))
+  return gulp.src(["./src/areaselector.js"])
+    .pipe(watch(["./src/areaselector.js"]))
     .pipe(babel({
       presets: ['es2015']
     }))

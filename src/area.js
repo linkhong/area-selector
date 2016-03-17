@@ -1,4 +1,5 @@
-import {getNode,getObjectLength,addListener,removeListener,preventDefault} from 'utils';
+//import {getNode,getObjectLength,addListener,removeListener,preventDefault} from 'utils';
+var {getNode,getObjectLength,addListener,removeListener,preventDefault} = require("./utils.js");
 //import areaData from 'areaData';
 var areaData = require("./areaData.js")
 // 常量
@@ -10,16 +11,16 @@ const AREACLASS = "area-selector-wrap",
   AREAHIDECLASS = "area-selector-wrap hide";
 
 function AreaSelector(options) {
-  if (!options.target) throw new Error("areaSelector need a target node");
+  if (!options._target) throw new Error("areaSelector need a _target node");
 
-  this.options = {
+  this._options = {
     separator: options.separator || "/",
     callback: typeof options.callback === "function" ? options.callback : () => false
   };
   // 触发节点
-  this.target = document.querySelector(options.target);
+  this._target = document.querySelector(options._target);
   // 是否未初始化
-  this.firstClick = true;
+  this._firstClick = true;
   // 默认地区码
   this.area = {
     [PROVINCE]: null,
@@ -27,13 +28,13 @@ function AreaSelector(options) {
     [DISTRICT]: null
   };
 
-  this.isAreaChange = true;
+  this._isAreaChange = true;
   // 默认tab视图
-  this.type = PROVINCE;
+  this._type = PROVINCE;
 
   // 缓存的控件
-  this.areaElement = null;
-  this.provinceTab = this.cityTab = this.districtTab = this.provincePanel = this.cityPanel = this.districtPanel = null;
+  this._areaElement = null;
+  this._provinceTab = this._cityTab = this._districtTab = this._provincePanel = this._cityPanel = this._districtPanel = null;
   // id
   this.id = +new Date();
 
@@ -51,20 +52,20 @@ AreaSelector.prototype.init = function () {
     removeListener(document, "click", hide);
   };
 
-  addListener(this.target, "click", (event) => {
+  addListener(this._target, "click", (event) => {
     preventDefault(event);
     // 第一次点击初始化模板
-    if (this.firstClick) {
-      this.firstClick = false;
+    if (this._firstClick) {
+      this._firstClick = false;
       // 生成模板并缓存7个常用节点
       this._template();
       this._cacheNode();
       this._show(true);
       this._updateBaseOnAreaCode();
 
-      addListener(this.areaElement, "click", (evt) => {
+      addListener(this._areaElement, "click", (evt) => {
         preventDefault(evt);
-        this._clickHandler(evt.target || evt.srcElement);
+        this._clickHandler(evt._target || evt.srcElement);
       });
     } else {
       this._show(true);
@@ -93,7 +94,7 @@ AreaSelector.prototype._clickHandler = function (dom) {
         [CITY]: null,
         [DISTRICT]: null
       };
-      this.type = CITY;
+      this._type = CITY;
       break;
     case CITY:
       this.area = {
@@ -101,14 +102,14 @@ AreaSelector.prototype._clickHandler = function (dom) {
         [CITY]: code,
         [DISTRICT]: null
       };
-      this.type = DISTRICT;
+      this._type = DISTRICT;
       break;
     case DISTRICT:
       this.area[DISTRICT] = code;
       break;
     case "tab":
-      this.type = targetType;
-      this.isAreaChange = false;
+      this._type = targetType;
+      this._isAreaChange = false;
       break;
   }
   this._updateView();
@@ -117,7 +118,7 @@ AreaSelector.prototype._clickHandler = function (dom) {
 /*初始化控件 end*/
 /*初始模板生成 start*/
 AreaSelector.prototype._template = function () {
-  var target = this.target;
+  var target = this._target;
   var top = target.offsetTop + target.clientHeight + 5 + "px",
     left = target.offsetLeft + "px";
   var provinces = this._generatePanelNodes(PROVINCE, areaData);
@@ -166,7 +167,7 @@ AreaSelector.prototype._updateBaseOnAreaCode = function () {
     getNode(this._generateNodeId(DISTRICT, this.area[DISTRICT])).className = "select";
   }
   //console.log(this.area);
-  this.type = PROVINCE;
+  this._type = PROVINCE;
   this._changeTab();
   // this._updateTargetView();
 };
@@ -174,9 +175,9 @@ AreaSelector.prototype._updateBaseOnAreaCode = function () {
 
 /*视图更新 start*/
 AreaSelector.prototype._updateView = function () {
-  if (!this.isAreaChange) {
+  if (!this._isAreaChange) {
     this._changeTab();
-    this.isAreaChange = true;
+    this._isAreaChange = true;
     return;
   }
   var selectElement;
@@ -189,26 +190,26 @@ AreaSelector.prototype._updateView = function () {
   }
 
   // 按 市区 城市 省份 的顺序判断
-  if (this.type === DISTRICT && this.area[DISTRICT]) {
+  if (this._type === DISTRICT && this.area[DISTRICT]) {
     // 选择市区后
-    changeSelectBlock(this.districtPanel, this._generateNodeId(DISTRICT, this.area[DISTRICT]));
+    changeSelectBlock(this._districtPanel, this._generateNodeId(DISTRICT, this.area[DISTRICT]));
     this._updateTargetView();
     this.hide();
     return;
   }
 
-  if (this.type === DISTRICT && this.area[CITY]) {
+  if (this._type === DISTRICT && this.area[CITY]) {
     // 选择城市后
-    changeSelectBlock(this.cityPanel, this._generateNodeId(CITY, this.area[CITY]));
+    changeSelectBlock(this._cityPanel, this._generateNodeId(CITY, this.area[CITY]));
     this._renderDistricts();
     this._changeTab();
     this._updateTargetView();
     return;
   }
 
-  if (this.type === CITY && this.area[PROVINCE]) {
+  if (this._type === CITY && this.area[PROVINCE]) {
     // 选择省份后
-    changeSelectBlock(this.provincePanel, this._generateNodeId(PROVINCE, this.area[PROVINCE]));
+    changeSelectBlock(this._provincePanel, this._generateNodeId(PROVINCE, this.area[PROVINCE]));
     this._renderCities();
     this._changeTab();
     this._updateTargetView();
@@ -218,7 +219,7 @@ AreaSelector.prototype._updateView = function () {
 
 AreaSelector.prototype._renderCities = function () {
   var cityData = this._getAreaData(this.area[PROVINCE])["subs"];
-  this.cityPanel.innerHTML = this._generatePanelNodes(CITY, cityData);
+  this._cityPanel.innerHTML = this._generatePanelNodes(CITY, cityData);
   /*
    * 4个直辖市时直接跳过城市选择
    *
@@ -238,7 +239,7 @@ AreaSelector.prototype._renderCities = function () {
   if (getObjectLength(cityData) === 1) {
     for (var cityCode in cityData) {
       this.area[CITY] = parseInt(cityCode);
-      this.type = DISTRICT;
+      this._type = DISTRICT;
       this._renderDistricts();
       var id = this._generateNodeId(CITY, cityCode);
       getNode(id).className = "select";
@@ -248,10 +249,10 @@ AreaSelector.prototype._renderCities = function () {
 
 AreaSelector.prototype._renderDistricts = function () {
   var districtData = this._getAreaData(this.area[PROVINCE], this.area[CITY])["subs"];
-  this.districtPanel.innerHTML = this._generatePanelNodes(DISTRICT, districtData);
+  this._districtPanel.innerHTML = this._generatePanelNodes(DISTRICT, districtData);
   // 省直辖县区时完成选择
   if (getObjectLength(districtData) === 0) {
-    this.type = CITY;
+    this._type = CITY;
     this.hide();
   }
 };
@@ -259,9 +260,9 @@ AreaSelector.prototype._renderDistricts = function () {
 AreaSelector.prototype._changeTab = function () {
   if (!this.area[PROVINCE]) return;
   // 未选择省份时无法切换到城市
-  if (!this.area[PROVINCE] && this.type === CITY) return;
+  if (!this.area[PROVINCE] && this._type === CITY) return;
   // 未选择城市时无法切换到县区
-  if (!this.area[CITY] && this.type === DISTRICT) return;
+  if (!this.area[CITY] && this._type === DISTRICT) return;
   // 选择了直辖省县区时无法切换到县区
   // 111111:{
   //  name:"直辖县区":
@@ -269,16 +270,16 @@ AreaSelector.prototype._changeTab = function () {
   // }
 
   var isDirect = this.area[CITY] && getObjectLength(this._getAreaData(this.area[PROVINCE], this.area[CITY])["subs"]) === 0;
-  if (this.type === DISTRICT && isDirect) return;
+  if (this._type === DISTRICT && isDirect) return;
   // 更新tab的hover 鼠标效果
-  this.cityTab.style.cursor = this.area.province ? "pointer" : "default";
-  this.districtTab.style.cursor = this.area.city && !isDirect ? "pointer" : "default";
+  this._cityTab.style.cursor = this.area.province ? "pointer" : "default";
+  this._districtTab.style.cursor = this.area.city && !isDirect ? "pointer" : "default";
 
-  var tabId = this._generateTabId(this.type),
-    panelId = this._generatePanelId(this.type);
+  var tabId = this._generateTabId(this._type),
+    panelId = this._generatePanelId(this._type);
 
-  this.areaElement.querySelector(".area-selector-tab.active").className = "area-selector-tab";
-  this.areaElement.querySelector(".area-selector-panel.active").className = "area-selector-panel";
+  this._areaElement.querySelector(".area-selector-tab.active").className = "area-selector-tab";
+  this._areaElement.querySelector(".area-selector-panel.active").className = "area-selector-panel";
 
   getNode(tabId).className = "area-selector-tab active";
   getNode(panelId).className = "area-selector-panel active";
@@ -299,13 +300,13 @@ AreaSelector.prototype._updateTargetView = function () {
     area.push(this._getAreaData(this.area[PROVINCE], this.area[CITY], this.area[DISTRICT]));
   }
 
-  var target = this.target;
+  var target = this._target;
   try {
     //input node
-    target.innerText = area.join(this.options.separator);
+    target.innerText = area.join(this._options.separator);
   } catch (e) {
   }
-  target.value = area.join(this.options.separator);
+  target.value = area.join(this._options.separator);
   // this._changeTab();
 };
 /*视图更新 end*/
@@ -313,9 +314,9 @@ AreaSelector.prototype._updateTargetView = function () {
 /*工具函数 start*/
 AreaSelector.prototype._show = function (condition) {
   if (condition) {
-    this.areaElement.className = AREASHOWCLASS;
+    this._areaElement.className = AREASHOWCLASS;
   } else {
-    this.areaElement.className = AREAHIDECLASS;
+    this._areaElement.className = AREAHIDECLASS;
   }
 };
 
@@ -337,15 +338,15 @@ AreaSelector.prototype._generatePanelNodes = function (type, data) {
 
 AreaSelector.prototype._cacheNode = function () {
 
-  this.areaElement = getNode("area_selector_" + this.id);
+  this._areaElement = getNode("area_selector_" + this.id);
 
-  this.provinceTab = getNode(this._generateTabId(PROVINCE));
-  this.cityTab = getNode(this._generateTabId(CITY));
-  this.districtTab = getNode(this._generateTabId(DISTRICT));
+  this._provinceTab = getNode(this._generateTabId(PROVINCE));
+  this._cityTab = getNode(this._generateTabId(CITY));
+  this._districtTab = getNode(this._generateTabId(DISTRICT));
 
-  this.provincePanel = getNode(this._generatePanelId(PROVINCE));
-  this.cityPanel = getNode(this._generatePanelId(CITY));
-  this.districtPanel = getNode(this._generatePanelId(DISTRICT));
+  this._provincePanel = getNode(this._generatePanelId(PROVINCE));
+  this._cityPanel = getNode(this._generatePanelId(CITY));
+  this._districtPanel = getNode(this._generatePanelId(DISTRICT));
 };
 
 AreaSelector.prototype._generateTabId = function (type) {
@@ -393,7 +394,7 @@ AreaSelector.prototype.getAreasString = function (separator) {
   if (this.area[DISTRICT]) {
     areas.push(areaData[this.area[PROVINCE]]["subs"][this.area[CITY]]["subs"][this.area[DISTRICT]]);
   }
-  return areas.join(separator || this.options.separator);
+  return areas.join(separator || this._options.separator);
 };
 
 AreaSelector.prototype.setArea = function (area) {
@@ -424,7 +425,7 @@ AreaSelector.prototype.setArea = function (area) {
     [DISTRICT]: isValidDistrict ? parseInt(codeArr[2]) : null
   };
   this._updateTargetView();
-  if (!this.firstClick) {
+  if (!this._firstClick) {
     // 涉及到对控件的dom操作，确保在生成后才执行
     this._updateBaseOnAreaCode();
   }
@@ -432,13 +433,13 @@ AreaSelector.prototype.setArea = function (area) {
 };
 
 AreaSelector.prototype.hide = function () {
-  this.options.callback();
+  this._options.callback();
   this._show(false);
 };
 
 AreaSelector.prototype.show = function () {
-  this.target.click();
+  this._target.click();
 };
 /*用户api end*/
 
-export default AreaSelector;
+module.exports =  AreaSelector;

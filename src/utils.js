@@ -1,4 +1,4 @@
-export var addListener = (function () {
+exports.addListener = (function () {
   if (Element.prototype.addEventListener) {
     return function (element, type, handler) {
       element.addEventListener(type, handler, false);
@@ -9,7 +9,7 @@ export var addListener = (function () {
     }
   }
 })();
-export var removeListener = (function () {
+exports.removeListener = (function () {
   if (Element.prototype.addEventListener) {
     return function (element, type, handler) {
       element.removeEventListener(type, handler, false);
@@ -21,7 +21,7 @@ export var removeListener = (function () {
   }
 })();
 // utils
-export function getObjectLength(obj) {
+exports.getObjectLength = function (obj) {
   var len = 0;
   for (var temp in obj) {
     len++;
@@ -29,7 +29,7 @@ export function getObjectLength(obj) {
   return len;
 }
 
-export function preventDefault(event) {
+exports.preventDefault = function (event) {
   if (event.stopPropagation) {
     event.stopPropagation();
   } else {
@@ -37,6 +37,6 @@ export function preventDefault(event) {
   }
 }
 
-export function getNode(id) {
+exports.getNode = function(id) {
   return document.getElementById(id);
 }

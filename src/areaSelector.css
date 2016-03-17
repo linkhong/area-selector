@@ -1,60 +1,69 @@
 .area-selector-wrap {
-	position: absolute;
-	display: none;
-	width: 270px;
-	min-height: 200px;
-	border: 1px solid #ccc;
-	box-shadow: 0 0 2px 1px #ccc;
-	font-size: 12px;
+  position: absolute;
+  display: none;
+  width: 270px;
+  min-height: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 2px 1px #ccc;
+  font-size: 12px;
 }
+
 .area-selector-wrap.show {
-	display: block;
+  display: block;
 }
 
 .area-selector-header {
-	overflow: hidden;
+  overflow: hidden;
 }
-.area-selector-tab {
-	float: left;
-	width: 90px;
-	height: 40px;
-	background-color: #ccc;
 
-	color: #333;
-	text-decoration: none;
-	text-align: center;
-	line-height: 40px;
-	cursor: default;
+.area-selector-tab {
+  float: left;
+  width: 90px;
+  height: 40px;
+  background-color: #ccc;
+
+  color: #333;
+  text-decoration: none;
+  text-align: center;
+  line-height: 40px;
+  cursor: default;
 }
+
 .area-selector-tab.active {
-	color: red;
-	background-color: #fff;
+  color: red;
+  background-color: #fff;
 }
 
 .area-selector-panel {
-	padding: 10px;
-	display: none;
+  padding: 10px;
+  display: none;
 }
+
 .area-selector-panel.active {
-	display: block;
+  display: block;
 }
+
 .area-selector-panel dl {
-	margin: 0;
-	overflow: hidden;
+  margin: 0;
+  overflow: hidden;
 }
+
 .area-selector-panel dd {
-	float: left;
-	margin: 0;
-	cursor: pointer;
-	padding: 5px 10px;
-	border-radius: 2px;
+  float: left;
+  margin: 0;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 2px;
 }
+
 .area-selector-panel dd:hover {
-	background-color: #FFA526;
-	color: #fff;
+  background-color: #FFA526;
+  color: #fff;
 }
+
 .area-selector-panel dd.select {
-	background-color: #DD5F09;
-	color: #fff;
+  background-color: #DD5F09;
+  color: #fff;
 }
 

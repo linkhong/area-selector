@@ -1,31 +1,46 @@
-import {getNode,getObjectLength,addListener,removeListener,preventDefault} from 'utils';
-//import areaData from 'areaData';
-var areaData = require("./areaData.js")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+
+var _utils = require('utils');
+
+var _areaData = require('areaData');
+
+var _areaData2 = _interopRequireDefault(_areaData);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 // 常量
-const PROVINCE = "province",
-  CITY = "city",
-  DISTRICT = "district";
-const AREACLASS = "area-selector-wrap",
-  AREASHOWCLASS = "area-selector-wrap show",
-  AREAHIDECLASS = "area-selector-wrap hide";
+var PROVINCE = "province",
+    CITY = "city",
+    DISTRICT = "district";
+var AREACLASS = "area-selector-wrap",
+    AREASHOWCLASS = "area-selector-wrap show",
+    AREAHIDECLASS = "area-selector-wrap hide";
 
 function AreaSelector(options) {
+  var _area;
+
   if (!options.target) throw new Error("areaSelector need a target node");
 
   this.options = {
     separator: options.separator || "/",
-    callback: typeof options.callback === "function" ? options.callback : () => false
+    callback: typeof options.callback === "function" ? options.callback : function () {
+      return false;
+    }
   };
   // 触发节点
   this.target = document.querySelector(options.target);
   // 是否未初始化
   this.firstClick = true;
   // 默认地区码
-  this.area = {
-    [PROVINCE]: null,
-    [CITY]: null,
-    [DISTRICT]: null
-  };
+  this.area = (_area = {}, _defineProperty(_area, PROVINCE, null), _defineProperty(_area, CITY, null), _defineProperty(_area, DISTRICT, null), _area);
 
   this.isAreaChange = true;
   // 默认tab视图
@@ -45,42 +60,52 @@ function AreaSelector(options) {
 
 /*初始化控件 start*/
 AreaSelector.prototype.init = function () {
+  var _this = this;
+
   // 点击其它区域隐藏
-  var hide = () => {
-    this._show();
-    removeListener(document, "click", hide);
+  var hide = function hide() {
+    _this._show();
+    (0, _utils.removeListener)(document, "click", hide);
   };
 
-  addListener(this.target, "click", (event) => {
-    preventDefault(event);
+  (0, _utils.addListener)(this.target, "click", function (event) {
+    (0, _utils.preventDefault)(event);
     // 第一次点击初始化模板
-    if (this.firstClick) {
-      this.firstClick = false;
+    if (_this.firstClick) {
+      _this.firstClick = false;
       // 生成模板并缓存7个常用节点
-      this._template();
-      this._cacheNode();
-      this._show(true);
-      this._updateBaseOnAreaCode();
+      _this._template();
+      _this._cacheNode();
+      _this._show(true);
+      _this._updateBaseOnAreaCode();
 
-      addListener(this.areaElement, "click", (evt) => {
-        preventDefault(evt);
-        this._clickHandler(evt.target || evt.srcElement);
+      (0, _utils.addListener)(_this.areaElement, "click", function (evt) {
+        (0, _utils.preventDefault)(evt);
+        _this._clickHandler(evt.target || evt.srcElement);
       });
     } else {
-      this._show(true);
+      _this._show(true);
     }
     // 其它位置点击隐藏控件
-    addListener(document, "click", hide);
-
+    (0, _utils.addListener)(document, "click", hide);
   }, false);
 };
 
 AreaSelector.prototype._clickHandler = function (dom) {
+  var _area2, _area3;
+
   var type = null;
   if (dom.nodeName === "DD") {
     // id: area_province_140000_1452048804587
     var code;
-    [, type, code] = dom.id.split("_");
+
+    var _dom$id$split = dom.id.split("_");
+
+    var _dom$id$split2 = _slicedToArray(_dom$id$split, 3);
+
+    type = _dom$id$split2[1];
+    code = _dom$id$split2[2];
+
     code = parseInt(code);
   } else if (dom.nodeName === "A") {
     type = "tab";
@@ -88,19 +113,11 @@ AreaSelector.prototype._clickHandler = function (dom) {
   }
   switch (type) {
     case PROVINCE:
-      this.area = {
-        [PROVINCE]: code,
-        [CITY]: null,
-        [DISTRICT]: null
-      };
+      this.area = (_area2 = {}, _defineProperty(_area2, PROVINCE, code), _defineProperty(_area2, CITY, null), _defineProperty(_area2, DISTRICT, null), _area2);
       this.type = CITY;
       break;
     case CITY:
-      this.area = {
-        [PROVINCE]: this.area[PROVINCE],
-        [CITY]: code,
-        [DISTRICT]: null
-      };
+      this.area = (_area3 = {}, _defineProperty(_area3, PROVINCE, this.area[PROVINCE]), _defineProperty(_area3, CITY, code), _defineProperty(_area3, DISTRICT, null), _area3);
       this.type = DISTRICT;
       break;
     case DISTRICT:
@@ -112,31 +129,15 @@ AreaSelector.prototype._clickHandler = function (dom) {
       break;
   }
   this._updateView();
-
 };
 /*初始化控件 end*/
 /*初始模板生成 start*/
 AreaSelector.prototype._template = function () {
   var target = this.target;
   var top = target.offsetTop + target.clientHeight + 5 + "px",
-    left = target.offsetLeft + "px";
-  var provinces = this._generatePanelNodes(PROVINCE, areaData);
-  var tpl = `
-                <div class="area-selector">
-                  <div class="area-selector-header">
-                    <a href="javascript:;" style="cursor: pointer;" class="area-selector-tab active" id="${this._generateTabId(PROVINCE)}">省份</a>
-                    <a href="javascript:;" class="area-selector-tab" id="${this._generateTabId(CITY)}">城市</a>
-                    <a href="javascript:;" class="area-selector-tab" id="${this._generateTabId(DISTRICT)}">县区</a>
-                  </div>
-                  <div class="area-selector-content">
-                    <div class="area-selector-panel active" id="${this._generatePanelId(PROVINCE)}">
-                      ${provinces}
-                    </div>
-                    <div class="area-selector-panel" id="${this._generatePanelId(CITY)}"></div>
-                    <div class="area-selector-panel" id="${this._generatePanelId(DISTRICT)}"></div>
-                  </div>
-                </div>
-                `;
+      left = target.offsetLeft + "px";
+  var provinces = this._generatePanelNodes(PROVINCE, _areaData2.default);
+  var tpl = '\n                <div class="area-selector">\n                  <div class="area-selector-header">\n                    <a href="javascript:;" style="cursor: pointer;" class="area-selector-tab active" id="' + this._generateTabId(PROVINCE) + '">省份</a>\n                    <a href="javascript:;" class="area-selector-tab" id="' + this._generateTabId(CITY) + '">城市</a>\n                    <a href="javascript:;" class="area-selector-tab" id="' + this._generateTabId(DISTRICT) + '">县区</a>\n                  </div>\n                  <div class="area-selector-content">\n                    <div class="area-selector-panel active" id="' + this._generatePanelId(PROVINCE) + '">\n                      ' + provinces + '\n                    </div>\n                    <div class="area-selector-panel" id="' + this._generatePanelId(CITY) + '"></div>\n                    <div class="area-selector-panel" id="' + this._generatePanelId(DISTRICT) + '"></div>\n                  </div>\n                </div>\n                ';
   var box = document.createElement("div");
   box.className = AREACLASS;
   box.id = "area_selector_" + this.id;
@@ -144,26 +145,25 @@ AreaSelector.prototype._template = function () {
   box.style.top = top;
   box.style.left = left;
   document.body.appendChild(box);
-
 };
 
 AreaSelector.prototype._updateBaseOnAreaCode = function () {
   if (!this.area[PROVINCE]) return;
   //console.log(this.area);
   if (this.area[PROVINCE]) {
-    getNode(this._generateNodeId(PROVINCE, this.area[PROVINCE])).className = "select";
+    (0, _utils.getNode)(this._generateNodeId(PROVINCE, this.area[PROVINCE])).className = "select";
     this._renderCities();
   }
   //console.log(this.area);
 
   if (this.area[PROVINCE] && this.area[CITY]) {
-    getNode(this._generateNodeId(CITY, this.area[CITY])).className = "select";
+    (0, _utils.getNode)(this._generateNodeId(CITY, this.area[CITY])).className = "select";
     this._renderDistricts();
   }
   //console.log(this.area);
 
   if (this.area[PROVINCE] && this.area[CITY] && this.area[DISTRICT]) {
-    getNode(this._generateNodeId(DISTRICT, this.area[DISTRICT])).className = "select";
+    (0, _utils.getNode)(this._generateNodeId(DISTRICT, this.area[DISTRICT])).className = "select";
   }
   //console.log(this.area);
   this.type = PROVINCE;
@@ -185,7 +185,7 @@ AreaSelector.prototype._updateView = function () {
   function changeSelectBlock(panel, blockId) {
     var selectElement = panel.querySelector(".select");
     if (selectElement) selectElement.className = "";
-    getNode(blockId).className = "select";
+    (0, _utils.getNode)(blockId).className = "select";
   }
 
   // 按 市区 城市 省份 的顺序判断
@@ -213,7 +213,6 @@ AreaSelector.prototype._updateView = function () {
     this._changeTab();
     this._updateTargetView();
   }
-
 };
 
 AreaSelector.prototype._renderCities = function () {
@@ -235,13 +234,13 @@ AreaSelector.prototype._renderCities = function () {
    *     }
    * }
    * */
-  if (getObjectLength(cityData) === 1) {
+  if ((0, _utils.getObjectLength)(cityData) === 1) {
     for (var cityCode in cityData) {
       this.area[CITY] = parseInt(cityCode);
       this.type = DISTRICT;
       this._renderDistricts();
       var id = this._generateNodeId(CITY, cityCode);
-      getNode(id).className = "select";
+      (0, _utils.getNode)(id).className = "select";
     }
   }
 };
@@ -250,7 +249,7 @@ AreaSelector.prototype._renderDistricts = function () {
   var districtData = this._getAreaData(this.area[PROVINCE], this.area[CITY])["subs"];
   this.districtPanel.innerHTML = this._generatePanelNodes(DISTRICT, districtData);
   // 省直辖县区时完成选择
-  if (getObjectLength(districtData) === 0) {
+  if ((0, _utils.getObjectLength)(districtData) === 0) {
     this.type = CITY;
     this.hide();
   }
@@ -268,20 +267,20 @@ AreaSelector.prototype._changeTab = function () {
   //  subs:{}
   // }
 
-  var isDirect = this.area[CITY] && getObjectLength(this._getAreaData(this.area[PROVINCE], this.area[CITY])["subs"]) === 0;
+  var isDirect = this.area[CITY] && (0, _utils.getObjectLength)(this._getAreaData(this.area[PROVINCE], this.area[CITY])["subs"]) === 0;
   if (this.type === DISTRICT && isDirect) return;
   // 更新tab的hover 鼠标效果
   this.cityTab.style.cursor = this.area.province ? "pointer" : "default";
   this.districtTab.style.cursor = this.area.city && !isDirect ? "pointer" : "default";
 
   var tabId = this._generateTabId(this.type),
-    panelId = this._generatePanelId(this.type);
+      panelId = this._generatePanelId(this.type);
 
   this.areaElement.querySelector(".area-selector-tab.active").className = "area-selector-tab";
   this.areaElement.querySelector(".area-selector-panel.active").className = "area-selector-panel";
 
-  getNode(tabId).className = "area-selector-tab active";
-  getNode(panelId).className = "area-selector-panel active";
+  (0, _utils.getNode)(tabId).className = "area-selector-tab active";
+  (0, _utils.getNode)(panelId).className = "area-selector-panel active";
 };
 
 AreaSelector.prototype._updateTargetView = function () {
@@ -303,8 +302,7 @@ AreaSelector.prototype._updateTargetView = function () {
   try {
     //input node
     target.innerText = area.join(this.options.separator);
-  } catch (e) {
-  }
+  } catch (e) {}
   target.value = area.join(this.options.separator);
   // this._changeTab();
 };
@@ -321,31 +319,25 @@ AreaSelector.prototype._show = function (condition) {
 
 AreaSelector.prototype._generatePanelNodes = function (type, data) {
   var str = "";
-  for (let code in data) {
-    let name = data[code].name || data[code];
-    str += `
-        <dd title="${name}" id="${this._generateNodeId(type, code)}">
-          ${name}
-        </dd>
-      `
+  for (var code in data) {
+    var name = data[code].name || data[code];
+    str += '\n        <dd title="' + name + '" id="' + this._generateNodeId(type, code) + '">\n          ' + name + '\n        </dd>\n      ';
   }
 
-  return `
-      <dl>${str}</dl>
-    `;
+  return '\n      <dl>' + str + '</dl>\n    ';
 };
 
 AreaSelector.prototype._cacheNode = function () {
 
-  this.areaElement = getNode("area_selector_" + this.id);
+  this.areaElement = (0, _utils.getNode)("area_selector_" + this.id);
 
-  this.provinceTab = getNode(this._generateTabId(PROVINCE));
-  this.cityTab = getNode(this._generateTabId(CITY));
-  this.districtTab = getNode(this._generateTabId(DISTRICT));
+  this.provinceTab = (0, _utils.getNode)(this._generateTabId(PROVINCE));
+  this.cityTab = (0, _utils.getNode)(this._generateTabId(CITY));
+  this.districtTab = (0, _utils.getNode)(this._generateTabId(DISTRICT));
 
-  this.provincePanel = getNode(this._generatePanelId(PROVINCE));
-  this.cityPanel = getNode(this._generatePanelId(CITY));
-  this.districtPanel = getNode(this._generatePanelId(DISTRICT));
+  this.provincePanel = (0, _utils.getNode)(this._generatePanelId(PROVINCE));
+  this.cityPanel = (0, _utils.getNode)(this._generatePanelId(CITY));
+  this.districtPanel = (0, _utils.getNode)(this._generatePanelId(DISTRICT));
 };
 
 AreaSelector.prototype._generateTabId = function (type) {
@@ -363,7 +355,7 @@ AreaSelector.prototype._generateNodeId = function (type, code) {
 AreaSelector.prototype._getAreaData = function (provinceCode, cityCode, districtCode) {
   var ret = null;
   if (provinceCode) {
-    ret = areaData[provinceCode];
+    ret = _areaData2.default[provinceCode];
   }
   if (provinceCode && cityCode) {
     ret = ret["subs"][cityCode];
@@ -383,20 +375,22 @@ AreaSelector.prototype.getAreasCode = function () {
 AreaSelector.prototype.getAreasString = function (separator) {
   var areas = [];
   if (this.area[PROVINCE]) {
-    areas.push(areaData[this.area[PROVINCE]].name);
+    areas.push(_areaData2.default[this.area[PROVINCE]].name);
   }
   if (this.area[CITY]) {
     if (this.area[PROVINCE] !== this.area[CITY]) {
-      areas.push(areaData[this.area[PROVINCE]]["subs"][this.area[CITY]].name);
+      areas.push(_areaData2.default[this.area[PROVINCE]]["subs"][this.area[CITY]].name);
     }
   }
   if (this.area[DISTRICT]) {
-    areas.push(areaData[this.area[PROVINCE]]["subs"][this.area[CITY]]["subs"][this.area[DISTRICT]]);
+    areas.push(_areaData2.default[this.area[PROVINCE]]["subs"][this.area[CITY]]["subs"][this.area[DISTRICT]]);
   }
   return areas.join(separator || this.options.separator);
 };
 
 AreaSelector.prototype.setArea = function (area) {
+  var _area4;
+
   var codeArr = [null, null, null];
   if (Object.prototype.toString.call(area) === "[object Object]") {
     codeArr[0] = area[PROVINCE];
@@ -410,25 +404,20 @@ AreaSelector.prototype.setArea = function (area) {
     console.warn("请传入object或array格式的地区码");
     return;
   }
-  var isValidProvince = codeArr[0] in areaData,
-    isValidCity = isValidProvince && codeArr[1] in this._getAreaData(codeArr[0])["subs"],
-    isValidDistrict = isValidCity && codeArr[2] in this._getAreaData(codeArr[0], codeArr[1])["subs"];
+  var isValidProvince = codeArr[0] in _areaData2.default,
+      isValidCity = isValidProvince && codeArr[1] in this._getAreaData(codeArr[0])["subs"],
+      isValidDistrict = isValidCity && codeArr[2] in this._getAreaData(codeArr[0], codeArr[1])["subs"];
   if (!isValidProvince) {
     console.warn("不合法的地区码");
     return;
   }
 
-  this.area = {
-    [PROVINCE]: parseInt(codeArr[0]),
-    [CITY]: isValidCity ? parseInt(codeArr[1]) : null,
-    [DISTRICT]: isValidDistrict ? parseInt(codeArr[2]) : null
-  };
+  this.area = (_area4 = {}, _defineProperty(_area4, PROVINCE, parseInt(codeArr[0])), _defineProperty(_area4, CITY, isValidCity ? parseInt(codeArr[1]) : null), _defineProperty(_area4, DISTRICT, isValidDistrict ? parseInt(codeArr[2]) : null), _area4);
   this._updateTargetView();
   if (!this.firstClick) {
     // 涉及到对控件的dom操作，确保在生成后才执行
     this._updateBaseOnAreaCode();
   }
-
 };
 
 AreaSelector.prototype.hide = function () {
@@ -441,4 +430,4 @@ AreaSelector.prototype.show = function () {
 };
 /*用户api end*/
 
-export default AreaSelector;
+exports.default = AreaSelector;

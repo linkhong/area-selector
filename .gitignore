@@ -4,3 +4,5 @@ node_modules
 .DS_Store
 src/address.txt
 src/processor.js
+npm-debug.log
+dev

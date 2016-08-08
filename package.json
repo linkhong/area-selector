@@ -1,6 +1,6 @@
 {
   "name": "areaselector",
-  "version": "0.0.0",
+  "version": "0.0.5",
   "author": "Link",
   "main": "dist/areaSelector.js",
   "scripts": {

@@ -3,7 +3,7 @@
 无依赖，支持IE8及以上，部分使用了es2015语法，使用babel转译。
 
 ## 地区数据
-地区数据从[最新县及县以上行政区划代码（截止2014年10月31日）](http://www.stats.gov.cn/tjsj/tjbz/xzqhdm/201504/t20150415_712722.html)手机, 位于data文件夹下，同时有processor.js用来转换成插件所使用的格式。
+地区数据从[2017年2月中华人民共和国县以上行政区划代码](http://www.mca.gov.cn/article/sj/tjbz/a/2017/0327/2017%E5%B9%B42%E6%9C%88%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E5%8E%BF%E4%BB%A5%E4%B8%8A%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%E4%BB%A3%E7%A0%81.html)收集, 位于data文件夹下，同时有processor.js用来转换成插件所使用的格式。
 使用方法`node ./processor.js`,会在data文件下下生成area.json.
 
 ##使用方法

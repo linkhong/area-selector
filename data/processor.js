@@ -1,16 +1,19 @@
 'use strict';
 
 var fs = require('fs');
+let area = {};
 
+let distinctDirectByProvinceCodeSet = new Set();
+const municipalityCodes = [110000, 120000, 310000, 500000]; //北京，天津，上海，重庆
 
-fs.readFile("./address.txt", "utf8", function(err, data) {
+fs.readFile("./data.json", "utf8", function (err, data) {
   if (err) throw err;
-  data = data.split("\r\n");
-  var address = {};
-  data.forEach(str => {
-    var code = str.slice(0, 6),
-      name = str.slice(6);
-    if (["县", "市辖区", "台湾省", "香港特别行政区", "澳门特别行政区"].indexOf(name) > -1) return;
+  data = JSON.parse(data);
+
+  for (let code in data) {
+
+    let name = data[code];
+    if (["县", "市辖区", "台湾省", "香港特别行政区", "澳门特别行政区"].includes(name)) break;
 
     if (/\D{3,}族自治/.test(name)) {
       // 积石山保安族东乡族撒拉族自治县 ==>积石山
@@ -30,74 +33,68 @@ fs.readFile("./address.txt", "utf8", function(err, data) {
     } else if (/\D{2,}(市|省|区|县|旗)$/.test(name)) {
       name = name.slice(0, name.length - 1);
     }
-    address[code] = name;
+    data[code] = name;
+  }
+  fs.writeFile('./data_without_suffix.json', JSON.stringify(data, 2), function (err) {
+    if (err) throw err;
+    console.log("输出完成");
   });
 
-  var area = {};
 
-  var direct_controlled_arr = [];
-  var four_direct = [110000, 120000, 310000, 500000]; //北京，天津，上海，重庆
 
-  Object.keys(address).forEach(code => {
+  Object.keys(data).forEach(code => {
+    code = parseInt(code);
+    let name = data[code];
+    var provinceCode = Math.floor(parseInt(code) / 10000) * 10000;
+
     // 1级
     if (parseInt(code) % 10000 === 0) {
       area[code] = {
-        name: address[code],
-        subs: {}
+        name: name,
+        children: {}
       };
       // 4个直辖市的下级为本身
-      if (four_direct.indexOf(parseInt(code)) > -1) {
-        area[code]["subs"][code] = {
-          name: address[code].slice(0, 2),
-          subs: {}
+      if (municipalityCodes.includes(provinceCode)) {
+        area[code]["children"][code] = {
+          name: name,
+          children: {}
         }
       }
       return;
     }
     // 2级
-    // 虽然为第三极但归为第二级
-    if (address[code] === "省直辖县级行政区划" || address[code] === "自治区直辖县级行政区划") {
-      direct_controlled_arr.push(code.slice(0, 4));
-      return;
-    }
-    var code_first_4 = code.slice(0, 4);
-    if (direct_controlled_arr.indexOf(code_first_4) > -1) {
-      var pro_code = Math.floor(parseInt(code) / 10000) * 10000;
-      area[pro_code]["subs"][code] = {
-        name: address[code],
-        subs: {}
-      };
-      return;
+    let city = area[provinceCode]["children"];
+
+    //省直辖县级行政区划和自治区直辖县级行政区划分离
+    let firsrFourCode = String(code).slice(0, 4);
+    if (/\d{2}90\d{2}/.test(code)) {
+      distinctDirectByProvinceCodeSet.add(firsrFourCode);
     }
 
-    if (parseInt(code) % 100 === 0) {
-      // 343400 ==> 340000
-      var pro_code = Math.floor(parseInt(code) / 10000) * 10000;
-      area[pro_code]['subs'][code] = {
-        name: address[code],
-        subs: {}
+    if (
+      distinctDirectByProvinceCodeSet.has(firsrFourCode) || parseInt(code) % 100 === 0
+    ) {
+      city[code] = {
+        name: name,
+        children: {}
       };
       return;
     }
 
 
     // 3级
-    var pro_code = Math.floor(code / 10000) * 10000,
-      city_code = Math.floor(code / 100) * 100;
-    if (four_direct.indexOf(pro_code) > -1) {
-      // 属于4个直辖市
-      area[pro_code]["subs"][pro_code]["subs"][code] = address[code];
-      return;
+    let cityCode = Math.floor(code / 100) * 100;
+    if (municipalityCodes.includes(provinceCode)) {
+      cityCode = provinceCode;
     }
-    area[pro_code]["subs"][city_code]["subs"][code] = address[code];
+
+    let distinct = area[provinceCode]["children"][cityCode]["children"];
+    distinct[code] = name;
 
   });
 
 
-
-
-
-  fs.writeFile('./area.json', JSON.stringify(area, 2), function(err) {
+  fs.writeFile('./area.json', JSON.stringify(area, 2), function (err) {
     if (err) throw err;
     console.log("输出完成");
   });

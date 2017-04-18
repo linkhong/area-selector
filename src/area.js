@@ -1,4 +1,4 @@
-{
+module.exports = {
   "110000": {
     "name": "北京",
     "children": {
